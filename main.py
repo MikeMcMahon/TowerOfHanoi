@@ -25,27 +25,41 @@ button_sprites = pygame.sprite.RenderPlain(
     add_disk_button,
     remove_disk_button)
 
+tower_platform = pygame.sprite.Sprite()
+tower_platform.image = pygame.Surface([700, 40])
+tower_platform.rect = tower_platform.image.get_rect()
+tower_platform.rect.x = 50
+tower_platform.rect.y = 500
+fill_gradient(tower_platform.image, GOLDENROD, DARK_GOLDENROD, None, False, False)
+
+tower_size = tower_width, tower_height = [20, 350]
+tower_y = height - tower_height - (100 - tower_platform.rect.height)
+
 tower_a = pygame.sprite.Sprite()
-tower_a.image = pygame.Surface([23, 400])
-tower_a.rect = Rect(183, 180, 23, 400)
+tower_a.image = pygame.Surface(tower_size)
+tower_a.rect = tower_a.image.get_rect()
+tower_a.rect.x, tower_a.rect.y = tower_platform.rect.x + 116, tower_y
 fill_gradient(tower_a.image, GOLDENROD, DARK_GOLDENROD, None, False)
 
 tower_b = pygame.sprite.Sprite()
-tower_b.image = pygame.Surface([23, 400])
-tower_b.rect = Rect(tower_a.rect.x + 183, 180, 23, 400)
+tower_b.image = pygame.Surface(tower_size)
+tower_b.rect = tower_b.image.get_rect()
+tower_b.rect.x, tower_b.rect.y = tower_a.rect.x + 233, tower_y
 fill_gradient(tower_b.image, GOLDENROD, DARK_GOLDENROD, None, False)
 
 tower_c = pygame.sprite.Sprite()
-tower_c.image = pygame.Surface([23, 400])
-tower_c.rect = Rect(tower_b.rect.x + 183, 180, 23, 400)
+tower_c.image = pygame.Surface(tower_size)
+tower_c.rect = tower_c.image.get_rect()
+tower_c.rect.x, tower_c.rect.y = tower_b.rect.x + 233, tower_y
 fill_gradient(tower_c.image, GOLDENROD, DARK_GOLDENROD, None, False)
 
-#tower_platform
 
-rod_sprites = pygame.sprite.RenderPlain(
+
+rod_sprites = pygame.sprite.OrderedUpdates(
     tower_a,
     tower_b,
-    tower_c
+    tower_c,
+    tower_platform
 )
 
 
