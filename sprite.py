@@ -3,16 +3,17 @@ Author: Mike McMahon
 
 """
 import os
+from random import randint
 from pygame.locals import *
-from pygame.sprite import Sprite
+from pygame.sprite import DirtySprite
 from gamecolors import *
 from gamefont import create_label
 from physics import collision_detection
 
 
-class GameBase(Sprite):
+class GameBase(DirtySprite):
     def __init__(self):
-        Sprite.__init__(self)
+        DirtySprite.__init__(self)
         self._x, self._y, self._width, self._height = 0, 0, 0, 0
         self.rect = Rect(self._x, self._y, self._width, self._height)
         self.image = None
@@ -33,8 +34,28 @@ class GameBase(Sprite):
         self.rect = Rect(self._x, self._y, self._width, self._height)
 
 
-class GameButton(GameBase):
+class TowerDisk(GameBase):
+    def __init__(self, width=200):
+        GameBase.__init__(self)
+        self._fill_color = (randint(50, 255), randint(50, 255), randint(50, 255))
+        self._fill_to_color = tuple(x - 50 for x in self._fill_color)
+        self._width = width
+        self._height = 30
+        self.dirty = 1
+        self._paint()
 
+    def _paint(self):
+        if self.image is None or self.dirty == 1:
+            self.image = pygame.Surface([self._width, self._height])
+            fill_gradient(self.image, self._fill_color, self._fill_to_color)
+            self.rect = self.image.get_rect()
+            self.rect.x, self.rect.y = self._x, self._y
+
+    def update(self, *args):
+        self._paint()
+
+
+class GameButton(GameBase):
     def __init__(self, font_renderer, label="", icon_path=""):
         GameBase.__init__(self)
         self.label = None
@@ -55,6 +76,7 @@ class GameButton(GameBase):
         self._func = None
         self._fill_forward = True
         self._is_mouse_down = True
+        self._paint()
 
     def set_label(self, label):
         self._label_dirty = True
@@ -141,7 +163,6 @@ class GameButton(GameBase):
         """
         if len(args) > 0:
             if collision_detection(self.get_rect(), args[0]):
-                # We're being moused over
                 self._fill_forward = False
                 if args[1][0] == 1 and not self._func is None and not self._is_mouse_down:
                     self._is_mouse_down = True
