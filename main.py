@@ -100,15 +100,16 @@ def main():
             if event.type == MOUSEBUTTONDOWN:
                 button_sprites.update(pygame.mouse.get_pos(), pygame.mouse.get_pressed())
 
-        # Updates handled here - in real timeee
+        # Input in reaaal time
         button_sprites.update(pygame.mouse.get_pos(), (0, 0, 0, 0))
 
-        # Rendering logic goes here
+        # Update logic goes here
         if current_time >= next_update:
 
             disk_sprites.update()
             next_update += interval
 
+        # Show me the money - rendering
         fill_gradient(screen, WHITE, LIGHT_BLUE, None, True, False)
         rod_sprites.draw(screen)
         disk_sprites.draw(screen)
