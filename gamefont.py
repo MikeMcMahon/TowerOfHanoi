@@ -9,10 +9,10 @@ from gamecolors import BLACK
 
 def init(size=15):
     pygame.font.init()
-    default_font = pygame.font.get_default_font()
-    font_renderer = pygame.font.Font(default_font, size)
+    font_renderer = pygame.font.SysFont("monospace", size)
+    font_renderer.set_bold(True)
 
-    return default_font, font_renderer
+    return "monospace", font_renderer
 
 
 def create_label(font_renderer, label, color=BLACK):
