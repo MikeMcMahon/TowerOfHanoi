@@ -35,13 +35,14 @@ class GameBase(DirtySprite):
 
 
 class TowerDisk(GameBase):
-    def __init__(self, width=200):
+    def __init__(self, width=200, order=0):
         GameBase.__init__(self)
         self._fill_color = (randint(75, 255), randint(75, 255), randint(75, 255))
         self._fill_to_color = tuple(x - 75 for x in self._fill_color)
         self._width = width
         self._height = 25
         self.dirty = 1
+        self.disk_order = order
         self._paint()
 
     def _paint(self):
