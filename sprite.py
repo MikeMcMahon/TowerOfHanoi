@@ -8,7 +8,6 @@ from pygame.locals import *
 from pygame.sprite import DirtySprite
 from gamecolors import *
 from gamefont import create_label
-from physics import collision_detection
 
 
 class GameBase(DirtySprite):
@@ -43,16 +42,31 @@ class TowerDisk(GameBase):
         self._height = 25
         self.dirty = 1
         self.disk_order = order
+        self._highlight = False
         self._paint()
 
     def _paint(self):
         if self.image is None or self.dirty == 1:
             self.image = pygame.Surface([self._width, self._height])
-            fill_gradient(self.image, self._fill_color, self._fill_to_color)
+            mod = 0
+            if self._highlight:
+                mod = 50
+            fill_gradient(
+                self.image,
+                tuple(x + mod for x in self._fill_color),
+                tuple(x + mod for x in self._fill_to_color))
             self.rect = self.image.get_rect()
             self.rect.x, self.rect.y = self._x, self._y
 
     def update(self, *args):
+        if len(args) > 0:
+            if "mousepos" in args[0]:
+                mouse = args[0]["mousepos"]
+                if self.rect.collidepoint(mouse):
+                    self._highlight = True
+                else:
+                    self._highlight = False
+
         self._paint()
 
 
@@ -163,7 +177,7 @@ class GameButton(GameBase):
         @return:
         """
         if len(args) > 0:
-            if collision_detection(self.get_rect(), args[0]):
+            if self.rect.collidepoint(args[0]):
                 self._fill_forward = False
                 if args[1][0] == 1 and not self._func is None and not self._is_mouse_down:
                     self._is_mouse_down = True
