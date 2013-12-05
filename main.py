@@ -7,6 +7,7 @@ import sys
 from decimal import Decimal
 import math
 
+import pygame
 from pygame.locals import *
 
 import gamefont
@@ -149,6 +150,22 @@ def reset():
     return reset
 
 
+def move_disk_right(tower, dest):
+    """
+    Moves the top most disk from tower to dest (if a disk is available to move)
+    """
+    if len(tower) == 0:
+        return None
+
+    disk = tower[-1]
+    key_frames = (
+        (disk.get_rect().x, 100),
+        (disk.get_rect().x + 233, 100),
+        (disk.get_rect().x + 233, tower_platform.rect.y - (len(dest) + 1) * disk.get_rect().height)
+    )
+
+    return key_frames
+
 add_disk_button.on_clicked(add_disk)
 remove_disk_button.on_clicked(remove_disk)
 solve_button.on_clicked(solve)
@@ -175,6 +192,10 @@ def main():
                 sys.exit()
             if event.type == MOUSEBUTTONDOWN:
                 button_sprites.update(pygame.mouse.get_pos(), pygame.mouse.get_pressed())
+            if event.type == KEYDOWN:
+                if pygame.key.get_pressed()[K_i]:
+                    print "key pressed!!"
+                    tower_a_disks[-1].key_frames = move_disk_right(tower_a_disks, tower_b_disks)
 
         # Input in reaaal time
         button_sprites.update(pygame.mouse.get_pos(), (0, 0, 0, 0))
