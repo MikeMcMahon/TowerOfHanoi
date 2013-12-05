@@ -75,11 +75,17 @@ disk_sprites = pygame.sprite.OrderedUpdates()
 
 
 def reset_total():
+    """
+    Resets the label and updates it with the proper number of disks
+    """
     total_disks.fill((0, 0, 0, 0))
     total_disks.blit(gamefont.create_label(font_renderer, "Total Disks {}".format(len(disk_sprites))), (0, 0))
 
 
 def remove_disk():
+    """
+    Removes a disk from the stack
+    """
     if len(disk_sprites) == 0 or game_state.is_solving or game_state.is_dirty:
         return remove_disk
 
@@ -91,6 +97,9 @@ def remove_disk():
 
 
 def add_disk():
+    """
+    Adds a disk to the stack
+    """
     if len(disk_sprites) == 13 or game_state.is_solving or game_state.is_dirty:
         return
 
@@ -112,6 +121,9 @@ def add_disk():
 
 
 def solve():
+    """
+    Starts and pauses the auto-solver mode
+    """
     game_state.is_solving = ~game_state.is_solving
 
     if game_state.is_solving:
@@ -125,6 +137,9 @@ def solve():
 
 
 def reset():
+    """
+    Resets the state of the towers
+    """
     if not game_state.is_solving:
         game_state.is_solving = False
         game_state.is_dirty = False
