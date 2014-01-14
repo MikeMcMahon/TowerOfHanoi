@@ -150,21 +150,53 @@ def reset():
     return reset
 
 
-def move_disk_right(tower, dest):
+def move_disk(tower, dest, direction="r", poles=1):
     """
-    Moves the top most disk from tower to dest (if a disk is available to move)
+    Moves the top most disk from the tower to the dest
+    @param tower: the starting tower
+    @param dest:  the ending tower
+    @param direction: the direction (r = right, l = left)
+    @param poles: move one pole or two poles at a time
+
+    Returns either the disk and keyframes to move or none and an empty keyframe set
     """
     if len(tower) == 0:
-        return None
+        return None, ()
 
     disk = tower[-1]
+
+    if disk.key_frames is not None:
+        return disk, ()  # can't move a disk in motion
+
+    if direction == "r":
+        amount = 233
+    elif direction == "l":
+        amount = -233
+
+    if poles > 1:
+        amount *= 2
+
     key_frames = (
         (disk.get_rect().x, 100),
-        (disk.get_rect().x + 233, 100),
-        (disk.get_rect().x + 233, tower_platform.rect.y - (len(dest) + 1) * disk.get_rect().height)
+        (disk.get_rect().x + amount, 100),
+        (disk.get_rect().x + amount, tower_platform.rect.y - ((len(dest) + 1) * disk.get_rect().height))
     )
 
-    return key_frames
+    tower.remove(disk)
+    dest.append(disk)
+
+    disk.key_frames = key_frames
+
+    return disk, key_frames
+
+
+def disks_in_motion(tower):
+    if len(tower) == 0:
+        return False
+
+    if tower[-1].key_frames is not None:
+        return True
+
 
 add_disk_button.on_clicked(add_disk)
 remove_disk_button.on_clicked(remove_disk)
@@ -186,16 +218,14 @@ def main():
 
     [add_disk() for x in range(3)]
 
+    last_move = ""
+
     while True:
         for event in pygame.event.get():
             if event.type == QUIT:
                 sys.exit()
             if event.type == MOUSEBUTTONDOWN:
                 button_sprites.update(pygame.mouse.get_pos(), pygame.mouse.get_pressed())
-            if event.type == KEYDOWN:
-                if pygame.key.get_pressed()[K_i]:
-                    print "key pressed!!"
-                    tower_a_disks[-1].key_frames = move_disk_right(tower_a_disks, tower_b_disks)
 
         # Input in reaaal time
         button_sprites.update(pygame.mouse.get_pos(), (0, 0, 0, 0))
@@ -203,8 +233,14 @@ def main():
 
         # Update logic goes here
         if current_time >= next_update:
+            if game_state.is_solving \
+                    and (len(tower_a_disks) > 0 or len(tower_b_disks) > 0)\
+                    and not (disks_in_motion(tower_a_disks) or disks_in_motion(tower_b_disks) or disks_in_motion(tower_c_disks)):
+                pass
 
-            disk_sprites.update()
+            if game_state.is_solving:
+                disk_sprites.update()
+
             next_update += interval
 
         # Show me the money - rendering
