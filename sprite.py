@@ -87,7 +87,6 @@ class TowerDisk(GameBase):
                 self._y += y_vector
 
                 if self._x == key_x and self._y == key_y:
-                    print "removing first element"
                     if len(self.key_frames) > 1:
                         self.key_frames = tuple(self.key_frames[x] for x in range(1, len(self.key_frames)))
                     else:
