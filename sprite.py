@@ -67,31 +67,35 @@ class TowerDisk(GameBase):
                     self._highlight = True
                 else:
                     self._highlight = False
+        else:
+            if not self.key_frames is None:
+                if not (self._x == self.key_frames[0][0] and self._y == self.key_frames[0][1]):
+                    key_x, key_y = self.key_frames[0]
+                    x_vector, y_vector = 0, 0
 
-        if not self.key_frames is None:
-            if not (self._x == self.key_frames[0][0] and self._y == self.key_frames[0][1]):
-                key_x, key_y = self.key_frames[0]
-                x_vector, y_vector = 0, 0
+                    if self._x > key_x:
+                        x_vector = -8
+                        if self._x + x_vector < key_x:
+                            x_vector = key_x - self._x
+                    elif self._x < key_x:
+                        x_vector = 8
+                        if self._x + x_vector > key_x:
+                            x_vector = self._x - key_x
+                    if self._y > key_y:
+                        y_vector = -8
+                        if self._y + y_vector < key_y:
+                            y_vector = key_y - self._y
+                    elif self._y < key_y:
+                        y_vector = 8
 
-                if self._x > key_x:
-                    x_vector = -1
-                elif self._x < key_x:
-                    x_vector = 1
+                    self._x += x_vector
+                    self._y += y_vector
 
-                if self._y > key_y:
-                    y_vector = -1
-                elif self._y < key_y:
-                    y_vector = 1
-
-                self._x += x_vector
-                self._y += y_vector
-
-                if self._x == key_x and self._y == key_y:
-                    if len(self.key_frames) > 1:
-                        self.key_frames = tuple(self.key_frames[x] for x in range(1, len(self.key_frames)))
-                    else:
-                        self.key_frames = None
-
+                    if self._x == key_x and self._y == key_y:
+                        if len(self.key_frames) > 1:
+                            self.key_frames = tuple(self.key_frames[x] for x in range(1, len(self.key_frames)))
+                        else:
+                            self.key_frames = None
         self._paint()
 
 

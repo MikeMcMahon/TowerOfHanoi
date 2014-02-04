@@ -18,6 +18,7 @@ from sprite import GameButton, TowerDisk
 
 window = width, height = 800, 600
 screen = pygame.display.set_mode(window)
+pygame.display.set_caption("Tower of Hanoi")
 
 default_font, font_renderer = gamefont.init()
 
@@ -87,7 +88,7 @@ def remove_disk():
     """
     Removes a disk from the stack
     """
-    if len(disk_sprites) == 0 or game_state.is_solving or game_state.is_dirty:
+    if len(disk_sprites) == 3 or game_state.is_solving or game_state.is_dirty:
         return remove_disk
 
     tower_a_disks[len(tower_a_disks)-1].kill()
@@ -145,7 +146,13 @@ def reset():
         game_state.is_solving = False
         game_state.is_dirty = False
 
-        # TODO - we need to move the TOWER A B C sprites back to where they go...
+        del tower_a_disks[0:len(tower_a_disks)]
+        del tower_b_disks[0:len(tower_b_disks)]
+        del tower_c_disks[0:len(tower_c_disks)]
+
+        disk_sprites.empty()
+
+        [add_disk() for x in range(3)]
 
     return reset
 
@@ -198,6 +205,33 @@ def disks_in_motion(tower):
         return True
 
 
+def generate_moves(disks, src, aux, dest, moves):
+    if disks == 0:
+        return
+    else:
+        generate_moves(disks - 1, src, dest, aux, moves)
+        moves.append("{0}{1}".format(src, dest))
+        generate_moves(disks - 1, aux, src, dest, moves)
+
+
+def get_tower_move(src, dest):
+    src_spot, src_tower = get_tower(src)
+    dest_spot, dest_tower = get_tower(dest)
+
+    return (src_spot - dest_spot), src_tower, dest_tower
+
+
+def get_tower(pole):
+    if pole == "A":
+        return 1, tower_a_disks
+    elif pole == "B":
+        return 2, tower_b_disks
+    elif pole == "C":
+        return 3, tower_c_disks
+
+    return None
+
+
 add_disk_button.on_clicked(add_disk)
 remove_disk_button.on_clicked(remove_disk)
 solve_button.on_clicked(solve)
@@ -218,8 +252,8 @@ def main():
 
     [add_disk() for x in range(3)]
 
-    last_move = ""
-
+    moves = []
+    generate_move_list = False
     while True:
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -235,8 +269,28 @@ def main():
         if current_time >= next_update:
             if game_state.is_solving \
                     and (len(tower_a_disks) > 0 or len(tower_b_disks) > 0)\
-                    and not (disks_in_motion(tower_a_disks) or disks_in_motion(tower_b_disks) or disks_in_motion(tower_c_disks)):
-                pass
+                    and not (
+                        disks_in_motion(tower_a_disks) or
+                        disks_in_motion(tower_b_disks) or
+                        disks_in_motion(tower_c_disks)
+                    ):
+
+                if not generate_move_list:
+                    generate_moves(len(tower_a_disks), "A", "B", "C", moves)
+                    generate_move_list = True
+
+                move = moves[0]
+                moves = moves[1:]
+
+                src, dest = move[0], move[1]
+                tower_move, tower_src, tower_dest = get_tower_move(src, dest)
+                if src < dest:
+                    direction = "r"
+                    tower_move *= -1
+                else:
+                    direction = "l"
+
+                move_disk(tower_src, tower_dest, direction, tower_move)
 
             if game_state.is_solving:
                 disk_sprites.update()
